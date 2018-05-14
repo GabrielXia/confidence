@@ -64,7 +64,7 @@ class Net(nn.Module):
         x = F.relu(self.fc1(x))
         x = F.dropout(x, training=self.training)
         x = self.fc2(x)
-        return F.log_softmax(x, dim=1)
+        return F.log_softmax(x[:, :10], dim=1), x[:, 10]
 
 model = Net().to(device)
 
@@ -76,9 +76,9 @@ def train(epoch):
     for batch_idx, (data, target) in enumerate(train_loader):
         data, target = data.to(device), target.to(device)
         optimizer.zero_grad()
-        output = model(data)
+        output, last_d = model(data)
         zeros = torch.Tensor(len(output) * [0]).to(device)
-        loss = F.nll_loss(output[:, :10], target) + F.l1_loss(output[:, 10], zeros)
+        loss = F.nll_loss(output, target) + F.l1_loss(last_d, zeros)
         loss.backward()
         # not update for last dim
         for param in model.parameters():
@@ -98,13 +98,13 @@ def test():
     with torch.no_grad():
         for data, target in test_loader:
             data, target = data.to(device), target.to(device)
-            output = model(data)
-            test_loss1 += F.nll_loss(output[:, :10], target, size_average=False).item() # sum up batch loss
+            output, last_d = model(data)
+            test_loss1 += F.nll_loss(output, target, size_average=False).item() # sum up batch loss
             pred = output.max(1, keepdim=True)[1] # get the index of the max log-probability
             correct += pred.eq(target.view_as(pred)).sum().item()
 
             zeros = torch.Tensor(len(output) * [0]).to(device)
-            test_loss2 += F.l1_loss(output[:, 10], zeros, size_average=False).item()
+            test_loss2 += F.l1_loss(last_d, zeros, size_average=False).item()
 
     test_loss1 /= len(test_loader.dataset)
     test_loss2 /= len(test_loader.dataset)
