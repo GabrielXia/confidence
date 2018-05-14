@@ -72,6 +72,7 @@ optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
 
 def train(epoch):
     model.train()
+    adjust_learning_rate_small(optimizer, epoch)
     for batch_idx, (data, target) in enumerate(train_loader):
         data, target = data.to(device), target.to(device)
         optimizer.zero_grad()
@@ -110,6 +111,13 @@ def test():
     print('\nTest set: Average loss: {:.4f}, loss last dim: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
         test_loss1, test_loss2, correct, len(test_loader.dataset),
         100. * correct / len(test_loader.dataset)))
+
+
+def adjust_learning_rate_small(optimizer, epoch):
+    """Sets the learning rate to the initial LR decayed by 2 every 30 epochs"""
+    lr = args.lr * (0.5 ** (epoch // 30)) * 0.1
+    for param_group in optimizer.param_groups:
+        param_group['lr'] = lr
 
 
 for epoch in range(1, args.epochs + 1):
