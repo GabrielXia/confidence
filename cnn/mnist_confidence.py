@@ -123,3 +123,5 @@ def adjust_learning_rate_small(optimizer, epoch):
 for epoch in range(1, args.epochs + 1):
     train(epoch)
     test()
+
+torch.save(model.state_dict(), "./mnist.model")
