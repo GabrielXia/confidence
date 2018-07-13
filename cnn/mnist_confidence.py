@@ -78,7 +78,7 @@ def train(epoch):
         optimizer.zero_grad()
         output, last_d = model(data)
         zeros = torch.Tensor(len(output) * [0]).to(device)
-        loss = F.CrossEntropyLoss(output, target) + F.l1_loss(last_d, zeros) * 10
+        loss = F.nll_loss(output, target) + F.l1_loss(last_d, zeros) * 10
         loss.backward()
         # not update for last dim
         for param in model.parameters():
