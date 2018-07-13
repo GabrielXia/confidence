@@ -109,7 +109,7 @@ def test():
     test_loss1 /= len(test_loader.dataset)
     test_loss2 /= len(test_loader.dataset)
     print('\nTest set: Average loss: {:.4f}, loss last dim: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
-        test_loss1, test_loss2, correct, len(test_loader.dataset),
+        test_loss1, test_loss2 * 10, correct, len(test_loader.dataset),
         100. * correct / len(test_loader.dataset)))
 
 
